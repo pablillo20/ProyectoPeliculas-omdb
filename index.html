@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebMovie</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(to bottom, #2c3e50, #4ca1af);
+            color: white;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        input {
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background: #3498db;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        select {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #resultados {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+        }
+
+        .resultados-totales {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .contenedor-peliculas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .pelicula {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            width: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .pelicula:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .pelicula img {
+            max-width: 100%;
+            height: auto;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .Cargando {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .Cargando.mostrar {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal {
+            position: fixed;
+            border-color: white;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal.mostrar {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .contenido-modal {
+            background: linear-gradient(to bottom, #2c3e50, #4ca1af);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+        }
+
+        .contenido-modal h2 {
+            margin-top: 0;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .contenido-modal p {
+            color: white;
+            font-size: 1em;
+            margin: 10px 0;
+        }
+
+        .cerrar-modal {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+
+        .cerrar-modal:hover {
+            background: #c0392b;
+        }
+
+        .imagenPelicula {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        #informeDiv {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(to bottom, #2c3e50, #4ca1af);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            z-index: 1000;
+            width: 600px;
+            max-height: 80%;
+            overflow-y: auto;
+            /* Permite el desplazamiento si el contenido es muy largo */
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        #cerrarInforme {
+            margin-top: 10px;
+            padding: 12px 20px;
+            border: none;
+            background-color: #f44336;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+        }
+
+            #cerrarInforme:hover {
+                background-color: #d32f2f;
+            }
+
+            #contenidoInforme {
+                font-size: 16px;
+                color: #fff;
+                margin-bottom: 20px;
+            }
+
+            #chart_div {
+                height: 300px;
+                width: 100%;
+            }
+    </style>
+</head>
+
+<body>
+    <header>
+        <input id="input" type="text" placeholder="Buscar película...">
+        <button id="botonBuscar">Buscar</button>
+        <button id="Ver-Informe">Ver Informe</button>
+        <select id="tipo">
+            <option id="Pelicula">Películas</option>
+            <option id="Seires">Series</option>
+        </select>
+    </header>
+    <section id="resultados">
+        <div id="TotalResultados" class="resultados-totales"></div>
+        <div id="listaPeliculas" class="contenedor-peliculas"></div>
+        <div id="Cargando" class="Cargando">
+            <img src="cargando.gif" alt="Cargando...">
+        </div>
+    </section>
+
+    <div id="modal" class="modal">
+        <div class="contenido-modal">
+            <h2 id="tituloPelicula"></h2>
+            <img id="imagenPelicula" src="" alt="Imagen de la película" class="imagenPelicula">
+            <p><strong>Año:</strong> <span id="anioPelicula"></span></p>
+            <p><strong>Director:</strong> <span id="directorPelicula"></span></p>
+            <p><strong>Actores:</strong> <span id="actoresPelicula"></span></p>
+            <p><strong>Sinopsis:</strong> <span id="sinopsisPelicula"></span></p>
+            <p><strong>Rating:</strong> <span id="Rating"></span></p>
+            <button class="cerrar-modal" id="cerrarModal">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="informeDiv">
+        <button id="cerrarInforme">Cerrar</button>
+        <div id="contenidoInforme"></div>
+    </div>
+
+
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>
